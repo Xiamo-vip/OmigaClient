@@ -1,0 +1,218 @@
+package com.mo.utils
+
+
+import com.mojang.blaze3d.platform.GlStateManager
+import com.mojang.blaze3d.systems.RenderSystem
+import net.minecraft.client.MinecraftClient
+import net.minecraft.client.gl.ShaderProgram
+import net.minecraft.client.gui.DrawContext
+import net.minecraft.client.render.GameRenderer
+import net.minecraft.client.render.GameRenderer.getPositionTexColorProgram
+import net.minecraft.client.render.Tessellator
+import net.minecraft.client.render.VertexFormat
+import net.minecraft.client.render.VertexFormats
+import net.minecraft.resource.Resource
+import net.minecraft.util.Identifier
+import java.awt.Color
+import java.awt.Font
+import kotlin.math.cos
+import kotlin.math.floor
+import kotlin.math.max
+import kotlin.math.sin
+
+object RenderUtil {
+    val mc = MinecraftClient.getInstance()
+
+
+
+
+
+
+
+
+    fun drawRect(drawContext: DrawContext ,x:Int,y:Int,width:Int,height:Int,background:Int){
+        drawContext.fill(x,y,x+width,y+height,background)
+
+    }
+
+
+    fun getWindowsWidth(): Int {
+        return MinecraftClient.getInstance().getWindow().scaledWidth
+    }
+
+    fun getWindowsHeight(): Int {
+        return MinecraftClient.getInstance().getWindow().scaledHeight
+    }
+    fun drawProgress_reverse(
+        drawContext: DrawContext,
+        x: Int,
+        y: Int,
+        width: Int,
+        height: Int,
+        progress: Float,
+        color: Int
+    ) {
+        drawContext.fill(x, y, (x + width * (1 - progress)).toInt(), y + height, color)
+    }
+
+    fun HSBtoARGB(hue: Float, sat: Float, bri: Float, alpha: Int): Int {
+        val rgb = Color.HSBtoRGB(hue, sat, bri)
+
+        val r = (rgb shr 16) and 0xFF
+        val g = (rgb shr 8) and 0xFF
+        val b = (rgb) and 0xFF
+        return (alpha and 0xFF) shl 24 or (r shl 16) or (g shl 8) or b
+    }
+
+    fun drawString(
+        drawContext: DrawContext,
+        text: String,
+        x: Float,
+        y: Float,
+        color: Int,
+        size: Int
+    ){
+        FontUtils.drawCustomString(drawContext,text,x,y,color,size)
+
+    }
+    fun drawString(
+        drawContext: DrawContext,
+        text: String,
+        x: Int,
+        y: Int,
+        color: Int,
+        size: Int
+    ){
+        FontUtils.drawCustomString(drawContext,text,x,y,color,size)
+
+    }
+
+
+
+
+
+    fun drawString(
+        drawContext: DrawContext,
+        text: String,
+        x: Int,
+        y: Int,
+        color: Int,
+    ){
+        FontUtils.drawCustomString(drawContext,text,x,y,color,8)
+
+    }
+
+
+
+    fun drawRainbowString(
+        drawContext: DrawContext,
+        text: String?,
+        x: Float,
+        y: Float,
+        timeMs: Long,
+        speed: Float,
+        hueStep: Float,
+        saturation: Float,
+        brightness: Float,
+        alpha: Int,
+        scale: Float,
+        size: Int
+    ) {
+
+
+        val gui = GuiGraphicsAdapter(drawContext)
+
+        if (text == null || text.isEmpty()) return
+
+
+        var baseHue = 0f
+        if (speed > 0.001f) {
+            baseHue = ((timeMs % (max(1f, speed)).toLong()) / max(1f, speed)) // 0..1
+        }
+
+
+        gui.pushPose()
+        if (scale != 1.0f) {
+            gui.scale(scale)
+
+        }
+
+        var xPos = x / scale
+        val yPos = y / scale
+
+
+        for (i in 0..<text.length) {
+            val c = text[i]
+            val s = c.toString()
+
+
+            var hue = baseHue + i * hueStep
+
+            hue = hue - floor(hue.toDouble()).toFloat()
+
+            val color = HSBtoARGB(hue, saturation, brightness, alpha)
+            drawString(drawContext,text,x,y,color,size)
+
+
+
+
+            xPos += FontUtils.getStringWidth(s,size)
+        }
+
+        gui.popPose()
+    }
+
+
+    fun drawImage(drawContext: DrawContext, img : Identifier, x: Float, y: Float, width: Float, height: Float){
+        val tessellator = Tessellator.getInstance()
+        val bufferBuilder = tessellator.buffer
+        val matrices = drawContext.matrices.peek().positionMatrix
+        RenderSystem.enableBlend()
+        RenderSystem.defaultBlendFunc()
+        RenderSystem.setShader(GameRenderer::getPositionTexProgram)
+        RenderSystem.setShaderTexture(0,img)
+        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE)
+        bufferBuilder.vertex(matrices,x,y,5f).texture(0f,0f).next()
+        bufferBuilder.vertex(matrices,x,y+height,5f).texture(0f,1f).next()
+        bufferBuilder.vertex(matrices,x+width,y+height,5f).texture(1f,1f).next()
+        bufferBuilder.vertex(matrices,x+width,y,5f).texture(1f,0f).next()
+        tessellator.draw()
+        RenderSystem.disableBlend()
+
+
+        //drawContext.drawTexture(img,x.toInt(),y.toInt(),200,200,200,200)
+
+
+    }
+
+
+    fun drawRoundedRect(context: DrawContext,x : Float , y: Float, width: Float,height: Float,radius : Float , color: Int){
+        val tessellator = Tessellator.getInstance()
+        val bufferBuilder = tessellator.buffer
+        var i = 0
+        RenderSystem.setShader(GameRenderer::getPositionColorProgram)
+        bufferBuilder.begin(VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_COLOR)
+
+        bufferBuilder.vertex(20.0,20.0,0.0)
+            .color(color).next()
+        bufferBuilder.vertex(5.0,40.0,0.0)
+            .color(color).next()
+        bufferBuilder.vertex(35.0,40.0,0.0)
+            .color(color).next()
+
+//        while (i <=90){
+//            val angle = Math.toRadians(i.toDouble())
+//            bufferBuilder.vertex((x+radius+ sin(angle)*radius).toDouble(),(y+radius - cos(angle)*radius).toDouble(),0.0)
+//                .color(color)
+//                .next()
+//            i+=3
+//        }
+
+        tessellator.draw()
+
+
+
+    }
+
+
+}

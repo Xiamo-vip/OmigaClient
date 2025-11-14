@@ -1,0 +1,21 @@
+{
+  "required": true,
+  "package": "com.mo.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "ExampleMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  },
+  "client": [
+    "MixinHUD",
+    "MixinKeyboard",
+    "MixinScreen",
+    "MixinSplash",
+    "MixinTick"
+  ]
+}
