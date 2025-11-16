@@ -9,10 +9,7 @@ import java.awt.Font
 object FontUtils {
     val point = 128
     var fontRender = GlyphAtlasFontRenderer(
-        baseFont = Font.createFont(Font.TRUETYPE_FONT, com.mo.Omiga.javaClass.getResourceAsStream(CustomFonts.Jigsaw)),
-        fallbackFamilies = listOf(
-            "Segoe UI Emoji", "Segoe UI Symbol", "Apple Color Emoji", "Noto Color Emoji", "Noto Emoji"
-        ),
+        baseFont = Font.createFont(Font.TRUETYPE_FONT, com.mo.Omiga.javaClass.getResourceAsStream(CustomFonts.JBMono)),
         atlasSize = 2048,
         antialias = true
     )
@@ -21,9 +18,6 @@ object FontUtils {
     fun loadFont(font : String){
         fontRender = GlyphAtlasFontRenderer(
             baseFont = Font.createFont(Font.TRUETYPE_FONT, com.mo.Omiga.javaClass.getResourceAsStream(font)),
-            fallbackFamilies = listOf(
-                "Segoe UI Emoji", "Segoe UI Symbol", "Apple Color Emoji", "Noto Color Emoji", "Noto Emoji"
-            ),
             atlasSize = 2048,
             antialias = true
         )
@@ -46,8 +40,12 @@ object FontUtils {
         return fontRender.getStringWidth(text,size)
     }
 
+    fun getStringWidthF(text: String,size: Int): Float {
+        return fontRender.getStringWidth(text,size).toFloat()
+    }
+
     fun getStringHeight(text: String,size: Int): Int {
-        return fontRender.getFontHeight(text,size)
+        return fontRender.getStringHeight(size)+2
     }
 
 

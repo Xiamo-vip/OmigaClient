@@ -19,6 +19,10 @@ open class Module(val name: String, val description:String, val key: Int, val ca
 
 
 
+    var xClickGui = 0
+    var yClickGui = 0
+
+
 
     init {
 

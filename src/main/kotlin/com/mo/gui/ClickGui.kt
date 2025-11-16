@@ -7,6 +7,8 @@ import com.mo.module.Category
 import com.mo.module.ModuleManager
 import com.mo.module.render.ClickGui
 import com.mo.utils.RenderUtil
+import com.mojang.blaze3d.platform.GlStateManager
+import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.Screen
@@ -26,13 +28,13 @@ class ClickGui : Screen(Text.of("ClickGui")) {
 
     val windows = CopyOnWriteArrayList<ClickGuiWindow>()
 
-    var x : Int = 0;
+    var x : Int = 20;
     var y:Int = 60;
 
     init {
         Category.entries.forEach {
             windows.add(ClickGuiWindow(it,x,y))
-            x+=200
+            x+=110
         }
 
     }
@@ -72,23 +74,39 @@ class ClickGui : Screen(Text.of("ClickGui")) {
         windows.forEach { it->
             it.render(drawContext,mouseX,mouseY, partialTick)
         }
+        RenderUtil.drawBlur(drawContext,20f,20f,200f,200f)
         super.render(drawContext, mouseX, mouseY, partialTick)
     }
 
+    override fun blur() {
+
+
+        super.blur()
+    }
 
 
     override fun mouseMoved(mouseX: Double, mouseY: Double) {
-        windows.forEach { it->
-            it.mouseMoved(mouseX,mouseY)
+
+        if (windows.any { it.onHover || it.onDrag }){
+            windows.filter { it.onHover }.forEach { it->
+                it.mouseMoved(mouseX,mouseY)
+            }
+        }else {
+            windows.forEach { it->
+                it.mouseMoved(mouseX,mouseY)
+            }
         }
+
+
         super.mouseMoved(mouseX, mouseY)
     }
 
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
-        windows.forEach { it->
+        windows.filter { !it.onDrag }.forEach { it->
             it.mouseClicked(mouseX,mouseY, button)
         }
+
         return super.mouseClicked(mouseX, mouseY, button)
     }
 

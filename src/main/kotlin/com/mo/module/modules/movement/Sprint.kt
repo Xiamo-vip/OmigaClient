@@ -9,7 +9,6 @@ import org.lwjgl.glfw.GLFW
 
 class Sprint : Module("Sprint","Keep Sprint", GLFW.GLFW_KEY_I, Category.Movement) {
     override fun onEnable() {
-        FontUtils.loadFont(CustomFonts.AutumnFlows)
         super.onEnable()
     }
 

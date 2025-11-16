@@ -65,7 +65,7 @@ class Hud : Module("Hud","HUD",-1, category = Category.Render) {
 
 
 
-        ModuleManager.modules.filter { module -> module.enabled || module.isOnToggle != 0L }.sortedBy { module ->  module.name}.forEach { module ->
+        ModuleManager.modules.filter { module -> module.enabled || module.isOnToggle != 0L }.sortedBy { module ->  module.name}.withIndex().forEach {(index, module) ->
 
             val hudModuleFontWidth = FontUtils.getStringWidth(module.name,hudModuleFontSize)+6
             val hudModuleFontHeidtht = FontUtils.getStringHeight(module.name,hudModuleFontSize)
@@ -150,8 +150,18 @@ class Hud : Module("Hud","HUD",-1, category = Category.Render) {
                     }
                 }
 
+
+//                if(index >0){
+//                    drawContext.drawHorizontalLine(
+//                        RenderUtil.getWindowsWidth()- hudMouduleBackgroundWidth,
+//                        RenderUtil.getWindowsWidth()- (hudMouduleBackgroundWidth+hudMouduleBackgroundWidth-hudModuleFontWidth)/2 + (hudModuleFontWidth - FontUtils.getStringWidth(ModuleManager.modules[index-1].name,hudModuleFontSize)),
+//                        y, Color.WHITE.rgb
+//
+//                    )
+//                }
+
             }
-            y=y+hudMouduleBackgroundHeight+1
+            y=y+hudMouduleBackgroundHeight
 
 
 
@@ -173,6 +183,10 @@ class Hud : Module("Hud","HUD",-1, category = Category.Render) {
 
         RenderUtil.drawRoundedRect(drawContext,100f,100f,120f,120f, 10f,Color.BLUE.rgb)
         RenderUtil.drawRect(drawContext,30,30,10,10, Color.BLUE.rgb)
+
+
+
+        MinecraftClient.getInstance().player?.let { RenderUtil.drawEntity(drawContext,100,100,200,200,30,1f, (RenderUtil.getWindowsWidth()/2).toFloat(),(RenderUtil.getWindowsHeight()/2).toFloat(), it) }
 
     }
 

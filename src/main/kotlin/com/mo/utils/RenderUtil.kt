@@ -4,21 +4,17 @@ package com.mo.utils
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.MinecraftClient
-import net.minecraft.client.gl.ShaderProgram
 import net.minecraft.client.gui.DrawContext
-import net.minecraft.client.render.GameRenderer
-import net.minecraft.client.render.GameRenderer.getPositionTexColorProgram
-import net.minecraft.client.render.Tessellator
-import net.minecraft.client.render.VertexFormat
-import net.minecraft.client.render.VertexFormats
-import net.minecraft.resource.Resource
+import net.minecraft.client.render.*
+import net.minecraft.entity.LivingEntity
 import net.minecraft.util.Identifier
+import org.joml.Matrix4f
+import org.joml.Quaternionf
+import org.joml.Vector3f
 import java.awt.Color
-import java.awt.Font
-import kotlin.math.cos
+import kotlin.math.atan
 import kotlin.math.floor
 import kotlin.math.max
-import kotlin.math.sin
 
 object RenderUtil {
     val mc = MinecraftClient.getInstance()
@@ -151,12 +147,12 @@ object RenderUtil {
             hue = hue - floor(hue.toDouble()).toFloat()
 
             val color = HSBtoARGB(hue, saturation, brightness, alpha)
-            drawString(drawContext,text,x,y,color,size)
+            drawString(drawContext,s,xPos,yPos,color,size)
 
 
 
+            xPos += FontUtils.getStringWidthF(s,size).toFloat()
 
-            xPos += FontUtils.getStringWidth(s,size)
         }
 
         gui.popPose()
@@ -184,6 +180,7 @@ object RenderUtil {
 
 
     }
+
 
 
     fun drawRoundedRect(context: DrawContext,x : Float , y: Float, width: Float,height: Float,radius : Float , color: Int){
@@ -214,5 +211,113 @@ object RenderUtil {
 
     }
 
+
+    fun drawBlur(context: DrawContext,x: Float,y: Float,width: Float,height: Float){
+        val tessellator = Tessellator.getInstance()
+        val bufferBuilder = tessellator.buffer
+        RenderSystem.enableBlend()
+        GlStateManager._colorMask(true, true, true, true)
+        GlStateManager._disableDepthTest()
+        GlStateManager._depthMask(false)
+        GlStateManager._blendFunc(770,771)
+        RenderSystem.setShader(GameRenderer::getPositionTexColorProgram)
+        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR)
+        bufferBuilder.vertex(x.toDouble(),y.toDouble(),0.0).texture(0f,0f).color(255).next()
+        bufferBuilder.vertex(x.toDouble(),y.toDouble()+height,0.0).texture(0f,1f).color(255).next()
+        bufferBuilder.vertex(x.toDouble()+width,y.toDouble()+height,0.0).texture(1f,1f).color(255).next()
+        bufferBuilder.vertex(x.toDouble()+width,y.toDouble(),0.0).texture(1f,0f).color(255).next()
+        tessellator.draw()
+        GlStateManager._enableDepthTest()
+        GlStateManager._depthMask(true)
+        GlStateManager._colorMask(true, true, true, true)
+        RenderSystem.disableBlend()
+
+
+
+    }
+
+
+    fun drawEntity(
+        context: DrawContext,
+        x1: Int,
+        y1: Int,
+        x2: Int,
+        y2: Int,
+        size: Int,
+        f: Float,
+        mouseX: Float,
+        mouseY: Float,
+        entity: LivingEntity
+    ) {
+        val g = (x1 + x2).toFloat() / 2.0f
+        val h = (y1 + y2).toFloat() / 2.0f
+        context.enableScissor(x1, y1, x2, y2)
+        val i = atan(((g - mouseX) / 40.0f).toDouble()).toFloat()
+        val j = atan(((h - mouseY) / 40.0f).toDouble()).toFloat()
+        val quaternionf = (Quaternionf()).rotateZ(Math.PI.toFloat())
+        val quaternionf2 = (Quaternionf()).rotateX(j * 20.0f * (Math.PI.toFloat() / 180f))
+        quaternionf.mul(quaternionf2)
+        val k = entity.bodyYaw
+        val l = entity.getYaw()
+        val m = entity.getPitch()
+        val n = entity.prevHeadYaw
+        val o = entity.headYaw
+        entity.bodyYaw = 180.0f + i * 20.0f
+        entity.setYaw(180.0f + i * 40.0f)
+        entity.setPitch(-j * 20.0f)
+        entity.headYaw = entity.getYaw()
+        entity.prevHeadYaw = entity.getYaw()
+        val vector3f = Vector3f(0.0f, entity.getHeight() / 2.0f + f, 0.0f)
+        drawEntity(context, g, h, size, vector3f, quaternionf, quaternionf2, entity)
+        entity.bodyYaw = k
+        entity.setYaw(l)
+        entity.setPitch(m)
+        entity.prevHeadYaw = n
+        entity.headYaw = o
+        context.disableScissor()
+    }
+
+    fun drawEntity(
+        context: DrawContext,
+        x: Float,
+        y: Float,
+        size: Int,
+        vector3f: Vector3f,
+        quaternionf: Quaternionf?,
+        quaternionf2: Quaternionf?,
+        entity: LivingEntity?
+    ) {
+        context.getMatrices().push()
+        context.getMatrices().translate(x.toDouble(), y.toDouble(), 50.0)
+        context.getMatrices()
+            .multiplyPositionMatrix((Matrix4f()).scaling(size.toFloat(), size.toFloat(), (-size).toFloat()))
+        context.getMatrices().translate(vector3f.x, vector3f.y, vector3f.z)
+        context.getMatrices().multiply(quaternionf)
+        DiffuseLighting.method_34742()
+        val entityRenderDispatcher = MinecraftClient.getInstance().getEntityRenderDispatcher()
+        if (quaternionf2 != null) {
+            quaternionf2.conjugate()
+            entityRenderDispatcher.setRotation(quaternionf2)
+        }
+
+        entityRenderDispatcher.setRenderShadows(false)
+        RenderSystem.runAsFancy(Runnable {
+            entityRenderDispatcher.render<LivingEntity?>(
+                entity,
+                0.0,
+                0.0,
+                0.0,
+                0.0f,
+                1.0f,
+                context.getMatrices(),
+                context.getVertexConsumers(),
+                15728880
+            )
+        })
+        context.draw()
+        entityRenderDispatcher.setRenderShadows(true)
+        context.getMatrices().pop()
+        DiffuseLighting.enableGuiDepthLighting()
+    }
 
 }
