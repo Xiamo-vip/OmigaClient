@@ -7,7 +7,7 @@ import com.mo.utils.RenderUtil
 import net.minecraft.client.gui.DrawContext
 import kotlin.contracts.Effect
 
-class Notification : Module("Notificaiton","notification",-1, Category.Render) {
+object Notification : Module("Notificaiton","notification",-1, Category.Render) {
     val fadeOutTime = 800F
     init {
         this.enabled = true

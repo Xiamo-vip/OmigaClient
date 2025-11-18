@@ -18,7 +18,9 @@ import java.util.function.Consumer
 
 class OverlayScreen(val mc : MinecraftClient,val reload: ResourceReload,val handle : Consumer<Optional<Throwable>>): Overlay() {
     private var startTime = -1L
-
+    private val background = ColorUtils.color(26,11,34)
+    private val title = "Loading Client"
+    private val titleSize = 25
 
 
     override fun pausesGame(): Boolean {
@@ -43,22 +45,32 @@ class OverlayScreen(val mc : MinecraftClient,val reload: ResourceReload,val hand
         if (System.currentTimeMillis() - startTime > 500L && reload.isComplete) {
             FontUtils.loadFont(CustomFonts.Jigsaw)
             handle.accept(Optional.empty())
-            mc.setScreen(TitleScreen())
+            mc.setScreen(com.mo.gui.screen.TitleScreen())
             mc.overlay = null
 
             return
         }
 
-        
 
-        drawImage(
-            context,
-            Identifier("omiga", "background.png"),
-            0f,
-            0f,
-            RenderUtil.getWindowsWidth().toFloat(),
-            RenderUtil.getWindowsHeight().toFloat(),
+        RenderUtil.drawRect(context,0,0, RenderUtil.getWindowsWidth(), RenderUtil.getWindowsHeight(),background)
+        RenderUtil.drawString(context,title,
+            RenderUtil.getWindowsWidth()/2- FontUtils.getStringWidth(title,titleSize)/2,
+            RenderUtil.getWindowsHeight()/2- FontUtils.getStringHeight(title,titleSize)/2,
+            Color.WHITE.rgb,
+            titleSize
+
         )
+
+
+
+//        drawImage(
+//            context,
+//            Identifier("omiga", "background.png"),
+//            0f,
+//            0f,
+//            RenderUtil.getWindowsWidth().toFloat(),
+//            RenderUtil.getWindowsHeight().toFloat(),
+//        )
 
 
     }

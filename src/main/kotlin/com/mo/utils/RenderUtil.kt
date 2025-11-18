@@ -83,6 +83,20 @@ object RenderUtil {
 
     }
 
+    fun drawStringWithShadow(
+        drawContext: DrawContext,
+        text: String,
+        x: Int,
+        y: Int,
+        color: Int,
+        size: Int
+    ){
+        FontUtils.drawCustomString(drawContext,text,x+2,y+2, Color.BLACK.rgb,size)
+        FontUtils.drawCustomString(drawContext,text,x,y,color,size)
+
+
+    }
+
 
 
 

@@ -3,7 +3,8 @@
   "package": "com.mo.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "ExampleMixin"
+    "ExampleMixin",
+    "MixinPlayerEntity"
   ],
   "injectors": {
     "defaultRequire": 1
@@ -12,8 +13,11 @@
     "requireAnnotations": true
   },
   "client": [
+    "MixinCamera",
     "MixinHUD",
     "MixinKeyboard",
+    "MixinLivingEntity",
+    "MixinLivingEntityRenderer",
     "MixinScreen",
     "MixinSplash",
     "MixinTick"

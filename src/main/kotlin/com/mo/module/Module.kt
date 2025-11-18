@@ -3,6 +3,8 @@ package com.mo.module
 import com.mo.module.render.notification.Notification
 import com.mo.module.render.notification.NotificationManager
 import net.minecraft.client.gui.DrawContext
+import net.minecraft.util.math.Vec3d
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo
 import kotlin.math.abs
 
 open class Module(val name: String, val description:String, val key: Int, val category: Category) {
@@ -38,6 +40,8 @@ open class Module(val name: String, val description:String, val key: Int, val ca
         enabled = false
     }
 
+
+    open fun travel(movementInput : Vec3d,ci : CallbackInfo){}
 
 
     open fun toggle(){

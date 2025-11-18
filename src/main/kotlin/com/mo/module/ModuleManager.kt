@@ -1,7 +1,9 @@
 package com.mo.module
 
+import com.mo.module.modules.combat.KillAura
 import com.mo.module.modules.movement.Speed
 import com.mo.module.modules.movement.Sprint
+import com.mo.module.player.rotaion.Rotations
 import com.mo.module.render.Brightness
 import com.mo.module.render.ClickGui
 import com.mo.module.render.Hud
@@ -15,12 +17,14 @@ object ModuleManager {
 
     init {
 
-        modules.add(Sprint())
-        modules.add(Notification())
-        modules.add(Hud())
-        modules.add(Brightness())
-        modules.add(ClickGui())
-        modules.add(Speed())
+        modules.add(Sprint)
+        modules.add(Notification)
+        modules.add(Hud)
+        modules.add(Brightness)
+        modules.add(ClickGui)
+        modules.add(Speed)
+        modules.add(KillAura)
+        modules.add(Rotations)
 
     }
 

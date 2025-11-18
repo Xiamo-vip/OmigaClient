@@ -5,6 +5,8 @@ import net.minecraft.client.gui.screen.Overlay
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.screen.SplashOverlay
 import net.minecraft.client.gui.screen.TitleScreen
+import net.minecraft.util.math.Vec3d
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo
 
 
 val overLayScreen : ArrayList<Class<Screen>> = arrayListOf(
@@ -40,3 +42,5 @@ class SetScreenEvent(val screen : Screen): Event(){
 class OnLoadingFinished(): Event(){
 }
 class Tick() : Event()
+
+class TravelEvent(val movementInput : Vec3d,val ci : CallbackInfo) : Event()
