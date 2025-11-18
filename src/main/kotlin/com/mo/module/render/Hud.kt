@@ -28,7 +28,7 @@ import java.util.concurrent.Executors
 import java.util.function.Supplier
 
 
-class Hud : Module("Hud","HUD",-1, category = Category.Render) {
+object Hud : Module("Hud","HUD",-1, category = Category.Render) {
 
 
 

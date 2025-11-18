@@ -8,7 +8,7 @@ import net.minecraft.entity.effect.StatusEffectInstance
 import net.minecraft.entity.effect.StatusEffects
 import org.lwjgl.glfw.GLFW
 
-class Brightness : Module("Brightness", "brightness", GLFW.GLFW_KEY_G, Category.Render) {
+object Brightness : Module("Brightness", "brightness", GLFW.GLFW_KEY_G, Category.Render) {
 
 
     override fun onEnable() {

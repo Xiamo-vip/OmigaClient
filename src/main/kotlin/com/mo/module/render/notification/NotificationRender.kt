@@ -17,11 +17,11 @@ import kotlin.math.sin
 class NotificationRender(private val notify: NotificationManager.Notify, y: Int) {
 
     private val mc = MinecraftClient.getInstance()
-    private val fontSize = 10
+    private val fontSize = 8
     private val fontWidth = FontUtils.getStringWidth(notify.msg,fontSize)
     private val fontHeight = FontUtils.getStringHeight(notify.msg,fontSize)
-    private var width = fontWidth+20
-    private var height = fontHeight +20
+    private var width = fontWidth+12
+    private var height = fontHeight +12
 
     private var x= RenderUtil.getWindowsWidth() - width
     private var y = 0f

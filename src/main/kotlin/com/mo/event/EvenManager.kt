@@ -2,6 +2,7 @@ package com.mo.event
 
 import com.mo.gui.ClickGui
 import com.mo.gui.screen.OverlayScreen
+import com.mo.module.ModuleManager
 import com.mo.module.ModuleManager.modules
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.screen.SplashOverlay
@@ -56,6 +57,13 @@ object  EvenManager {
     @EventTarget
     fun onLoadingFinished(event: OnLoadingFinished){
         MinecraftClient.getInstance().setScreen(TitleScreen())
+    }
+
+    @EventTarget
+    fun onTravel(event: TravelEvent){
+        modules.filter { module -> module.enabled }.forEach {
+            module -> module.travel(event.movementInput,event.ci)
+        }
     }
 
 

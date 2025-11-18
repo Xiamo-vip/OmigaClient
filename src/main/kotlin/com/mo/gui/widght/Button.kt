@@ -1,5 +1,12 @@
 package com.mo.gui.widght
 
+import com.mo.gui.screen.TitleScreen
+import com.mo.module.render.notification.NotificationManager.mc
+import com.mo.utils.AnimationUtil
+import com.mo.utils.FontUtils
+import com.mo.utils.RenderUtil
+import com.mojang.blaze3d.systems.RenderSystem
+import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.ScreenRect
@@ -7,255 +14,121 @@ import net.minecraft.client.gui.Selectable
 import net.minecraft.client.gui.navigation.GuiNavigation
 import net.minecraft.client.gui.navigation.GuiNavigationPath
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder
+import net.minecraft.client.gui.screen.world.SelectWorldScreen
 import net.minecraft.client.gui.tooltip.Tooltip
 import net.minecraft.client.gui.widget.ClickableWidget
+import net.minecraft.client.gui.widget.PressableWidget
+import net.minecraft.client.sound.PositionedSoundInstance
 import net.minecraft.client.sound.SoundManager
+import net.minecraft.sound.SoundEvents
 import net.minecraft.text.MutableText
 import net.minecraft.text.Text
+import net.minecraft.util.Colors
+import java.awt.Color
 import java.util.function.Consumer
+import kotlin.math.abs
 
-open class Button(x : Int, y : Int,width: Int, height: Int) : ClickableWidget(
-    x,
-    y,
-    width,
-    height,
-    Text.of("cs")
-) {
+open class Button( x : Int,  y : Int, width: Int, height: Int,val text : String,val onClick :()-> Unit){
+    var isHover = false
 
-    override fun getHeight(): Int {
-        return super.getHeight()
+    var x : Int
+    var y : Int
+    val width: Int
+    val height: Int
+
+    init {
+        this.x = x
+        this.y = y
+        this.width = width
+        this.height = height
+
     }
 
-    override fun setTooltip(tooltip: Tooltip?) {
-        super.setTooltip(tooltip)
+    val transition : Long = 500L
+
+    var hoverTime : Long = 0L
+
+    var background = ColorUtils.color(180,0,0,0)
+    val b2a = 30
+    var backgroundHover = ColorUtils.color(210 ,0,0,0)
+    val fontSize = 15
+    val fontColor = Color.WHITE.rgb
+
+    open fun render(drawContext: DrawContext,mouseX : Int,mouseY : Int,delta : Float){
+        RenderSystem.enableBlend()
+
+        if (hoverTime != 0L){
+
+            val rawProgress = ((System.currentTimeMillis()-hoverTime).toFloat() / transition.toFloat())
+
+            // ⭐ 修正 1: 钳制进度值在 0.0f 到 1.0f 之间
+            val clampedProgress = rawProgress.coerceIn(0.0f, 1.0f)
+
+
+            if (!isHover){
+                val alpha = b2a* AnimationUtil.easeOutQuad(clampedProgress)
+                background = ColorUtils.color(210 - alpha.toInt(),0,0,0)
+                RenderUtil.drawRect(drawContext ,x,y,width,height,background)
+
+            }else{
+                val alpha = b2a* AnimationUtil.easeOutQuad(clampedProgress)
+                backgroundHover = ColorUtils.color(180 + alpha.toInt(),0,0,0)
+                RenderUtil.drawRect(drawContext,x,y,width,height,backgroundHover)
+            }
+
+        } else {
+            if (isHover) {
+                RenderUtil.drawRect(drawContext, x, y, width, height, backgroundHover)
+            } else {
+                RenderUtil.drawRect(drawContext, x, y, width, height, background)
+            }
+        }
+
+
+        RenderUtil.drawString(drawContext,
+            this.text,
+            (x+width/2- FontUtils.getStringWidth(text,fontSize)/2),
+            (y+height/2- FontUtils.getStringHeight(text,fontSize)/2),
+            fontColor,
+            fontSize
+        )
+        RenderSystem.disableBlend()
     }
 
-    override fun getTooltip(): Tooltip? {
-        return super.getTooltip()
+
+    open fun onMouse(mouseX: Double,mouseY: Double){
+        isHover(mouseX,mouseY)
+
     }
 
-    override fun setTooltipDelay(delay: Int) {
-        super.setTooltipDelay(delay)
+
+
+    private fun isHover(mouseX: Double,mouseY: Double){
+        val shouldHover = mouseY < height + y && mouseY > y && mouseX < width + x && mouseX > x
+        if (shouldHover != isHover) {
+            hoverTime = System.currentTimeMillis()
+        }
+
+        isHover = shouldHover
+
+
     }
 
-    override fun getNarrationMessage(): MutableText? {
-        return super.getNarrationMessage()
+
+
+
+    open fun  mouseReleased(mouseX: Double, mouseY: Double) {
+
+        if (mouseY< this.height+this.y && mouseY>this.y && mouseX<this.width+this.x && mouseX> this.x){
+            mc.soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f))
+            this.onClick()
+        }
+
+
     }
 
-    override fun renderWidget(
-        context: DrawContext?,
-        mouseX: Int,
-        mouseY: Int,
-        delta: Float
-    ) {
-        TODO("Not yet implemented")
-    }
 
-    override fun drawScrollableText(
-        context: DrawContext?,
-        textRenderer: TextRenderer?,
-        xMargin: Int,
-        color: Int
-    ) {
-        super.drawScrollableText(context, textRenderer, xMargin, color)
-    }
 
-    override fun onClick(mouseX: Double, mouseY: Double) {
-        super.onClick(mouseX, mouseY)
-    }
 
-    override fun onRelease(mouseX: Double, mouseY: Double) {
-        super.onRelease(mouseX, mouseY)
-    }
 
-    override fun onDrag(mouseX: Double, mouseY: Double, deltaX: Double, deltaY: Double) {
-        super.onDrag(mouseX, mouseY, deltaX, deltaY)
-    }
-
-    override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
-        return super.mouseClicked(mouseX, mouseY, button)
-    }
-
-    override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean {
-        return super.mouseReleased(mouseX, mouseY, button)
-    }
-
-    override fun isValidClickButton(button: Int): Boolean {
-        return super.isValidClickButton(button)
-    }
-
-    override fun mouseDragged(
-        mouseX: Double,
-        mouseY: Double,
-        button: Int,
-        deltaX: Double,
-        deltaY: Double
-    ): Boolean {
-        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)
-    }
-
-    override fun clicked(mouseX: Double, mouseY: Double): Boolean {
-        return super.clicked(mouseX, mouseY)
-    }
-
-    override fun getNavigationPath(navigation: GuiNavigation?): GuiNavigationPath? {
-        return super.getNavigationPath(navigation)
-    }
-
-    override fun isMouseOver(mouseX: Double, mouseY: Double): Boolean {
-        return super.isMouseOver(mouseX, mouseY)
-    }
-
-    override fun playDownSound(soundManager: SoundManager?) {
-        super.playDownSound(soundManager)
-    }
-
-    override fun getWidth(): Int {
-        return super.getWidth()
-    }
-
-    override fun setWidth(width: Int) {
-        super.setWidth(width)
-    }
-
-    override fun setHeight(height: Int) {
-        super.setHeight(height)
-    }
-
-    override fun setAlpha(alpha: Float) {
-        super.setAlpha(alpha)
-    }
-
-    override fun setMessage(message: Text?) {
-        super.setMessage(message)
-    }
-
-    override fun getMessage(): Text? {
-        return super.getMessage()
-    }
-
-    override fun isFocused(): Boolean {
-        return super.isFocused()
-    }
-
-    override fun isHovered(): Boolean {
-        return super.isHovered()
-    }
-
-    override fun isSelected(): Boolean {
-        return super.isSelected()
-    }
-
-    override fun isNarratable(): Boolean {
-        return super.isNarratable()
-    }
-
-    override fun setFocused(focused: Boolean) {
-        super.setFocused(focused)
-    }
-
-    override fun getType(): Selectable.SelectionType? {
-        return super.getType()
-    }
-
-    override fun appendClickableNarrations(builder: NarrationMessageBuilder?) {
-        TODO("Not yet implemented")
-    }
-
-    override fun appendDefaultNarrations(builder: NarrationMessageBuilder?) {
-        super.appendDefaultNarrations(builder)
-    }
-
-    override fun getX(): Int {
-        return super.getX()
-    }
-
-    override fun setX(x: Int) {
-        super.setX(x)
-    }
-
-    override fun getY(): Int {
-        return super.getY()
-    }
-
-    override fun setY(y: Int) {
-        super.setY(y)
-    }
-
-    override fun getRight(): Int {
-        return super.getRight()
-    }
-
-    override fun getBottom(): Int {
-        return super.getBottom()
-    }
-
-    override fun forEachChild(consumer: Consumer<ClickableWidget?>?) {
-        super.forEachChild(consumer)
-    }
-
-    override fun setDimensions(width: Int, height: Int) {
-        super.setDimensions(width, height)
-    }
-
-    override fun getNavigationFocus(): ScreenRect? {
-        return super.getNavigationFocus()
-    }
-
-    override fun setDimensionsAndPosition(width: Int, height: Int, x: Int, y: Int) {
-        super.setDimensionsAndPosition(width, height, x, y)
-    }
-
-    override fun getNavigationOrder(): Int {
-        return super.getNavigationOrder()
-    }
-
-    override fun setNavigationOrder(navigationOrder: Int) {
-        super.setNavigationOrder(navigationOrder)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        return super.equals(other)
-    }
-
-    override fun hashCode(): Int {
-        return super.hashCode()
-    }
-
-    override fun toString(): String {
-        return super.toString()
-    }
-
-    override fun mouseMoved(mouseX: Double, mouseY: Double) {
-        super.mouseMoved(mouseX, mouseY)
-    }
-
-    override fun mouseScrolled(
-        mouseX: Double,
-        mouseY: Double,
-        horizontalAmount: Double,
-        verticalAmount: Double
-    ): Boolean {
-        return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount)
-    }
-
-    override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
-        return super.keyPressed(keyCode, scanCode, modifiers)
-    }
-
-    override fun keyReleased(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
-        return super.keyReleased(keyCode, scanCode, modifiers)
-    }
-
-    override fun charTyped(chr: Char, modifiers: Int): Boolean {
-        return super.charTyped(chr, modifiers)
-    }
-
-    override fun getFocusedPath(): GuiNavigationPath? {
-        return super.getFocusedPath()
-    }
-
-    override fun setPosition(x: Int, y: Int) {
-        super.setPosition(x, y)
-    }
 }

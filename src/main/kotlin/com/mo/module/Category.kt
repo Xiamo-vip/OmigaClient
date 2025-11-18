@@ -4,5 +4,6 @@ enum class Category {
     Combat,
     Movement,
     Render,
-    Misc
+    Misc,
+    Player
 }
