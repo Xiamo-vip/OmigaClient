@@ -6,6 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.render.*
+import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.LivingEntity
 import net.minecraft.util.Identifier
 import org.joml.Matrix4f
@@ -333,5 +334,89 @@ object RenderUtil {
         context.getMatrices().pop()
         DiffuseLighting.enableGuiDepthLighting()
     }
+
+
+
+    fun drawBox3D(
+        matrixStack: MatrixStack,
+        x1: Float,
+        y1: Float,
+        z1 : Float,
+        width: Float,
+        heightY : Float, // 💡 推荐更名：Y 尺寸命名为 heightY
+        depthZ : Float, // 💡 推荐更名：Z 尺寸命名为 depthZ
+        color: Int
+    ) {
+        // 定义边界坐标
+        val x2 = x1 + width
+        val y2 = y1 + heightY // 修正后的 Y 最大坐标
+        val z2 = z1 + depthZ
+
+        // 绘制设置
+        matrixStack.push()
+        RenderSystem.enableBlend()
+        RenderSystem.defaultBlendFunc()
+        RenderSystem.disableDepthTest() // 确保透视
+        RenderSystem.setShader(GameRenderer::getPositionColorProgram)
+
+        val tessellator = Tessellator.getInstance()
+        val bufferBuilder = tessellator.buffer
+        val matrix4f = matrixStack.peek().positionMatrix
+        RenderSystem.lineWidth(1.5f)
+        // ⭐ 采用 LINES 模式：一次性绘制所有 12 条边 (12 * 2 = 24 个顶点)
+        bufferBuilder.begin(VertexFormat.DrawMode.LINES, VertexFormats.POSITION_COLOR)
+
+        // --- 1. 绘制前脸 (Z=z1) ---
+        // Bottom: V1(x1, y1, z1) -> V2(x2, y1, z1)
+        bufferBuilder.vertex(matrix4f, x1, y1, z1).color(color).next()
+        bufferBuilder.vertex(matrix4f, x2, y1, z1).color(color).next()
+        // Right: V2(x2, y1, z1) -> V3(x2, y2, z1)
+        bufferBuilder.vertex(matrix4f, x2, y1, z1).color(color).next()
+        bufferBuilder.vertex(matrix4f, x2, y2, z1).color(color).next()
+        // Top: V3(x2, y2, z1) -> V4(x1, y2, z1)
+        bufferBuilder.vertex(matrix4f, x2, y2, z1).color(color).next()
+        bufferBuilder.vertex(matrix4f, x1, y2, z1).color(color).next()
+        // Left: V4(x1, y2, z1) -> V1(x1, y1, z1)
+        bufferBuilder.vertex(matrix4f, x1, y2, z1).color(color).next()
+        bufferBuilder.vertex(matrix4f, x1, y1, z1).color(color).next()
+
+        // --- 2. 绘制后脸 (Z=z2) ---
+        // Bottom: V5(x1, y1, z2) -> V6(x2, y1, z2)
+        bufferBuilder.vertex(matrix4f, x1, y1, z2).color(color).next()
+        bufferBuilder.vertex(matrix4f, x2, y1, z2).color(color).next()
+        // Right: V6(x2, y1, z2) -> V7(x2, y2, z2)
+        bufferBuilder.vertex(matrix4f, x2, y1, z2).color(color).next()
+        bufferBuilder.vertex(matrix4f, x2, y2, z2).color(color).next()
+        // Top: V7(x2, y2, z2) -> V8(x1, y2, z2)
+        bufferBuilder.vertex(matrix4f, x2, y2, z2).color(color).next()
+        bufferBuilder.vertex(matrix4f, x1, y2, z2).color(color).next()
+        // Left: V8(x1, y2, z2) -> V5(x1, y1, z2)
+        bufferBuilder.vertex(matrix4f, x1, y2, z2).color(color).next()
+        bufferBuilder.vertex(matrix4f, x1, y1, z2).color(color).next()
+
+        // --- 3. 绘制连接边 (4 条垂直边) ---
+        // Front-Left V1(x1, y1, z1) -> Back-Left V5(x1, y1, z2)
+        bufferBuilder.vertex(matrix4f, x1, y1, z1).color(color).next()
+        bufferBuilder.vertex(matrix4f, x1, y1, z2).color(color).next()
+        // Front-Right V2(x2, y1, z1) -> Back-Right V6(x2, y1, z2)
+        bufferBuilder.vertex(matrix4f, x2, y1, z1).color(color).next()
+        bufferBuilder.vertex(matrix4f, x2, y1, z2).color(color).next()
+        // Front-Top-Right V3(x2, y2, z1) -> Back-Top-Right V7(x2, y2, z2)
+        bufferBuilder.vertex(matrix4f, x2, y2, z1).color(color).next()
+        bufferBuilder.vertex(matrix4f, x2, y2, z2).color(color).next()
+        // Front-Top-Left V4(x1, y2, z1) -> Back-Top-Left V8(x1, y2, z2)
+        bufferBuilder.vertex(matrix4f, x1, y2, z1).color(color).next()
+        bufferBuilder.vertex(matrix4f, x1, y2, z2).color(color).next()
+
+
+        tessellator.draw() // 提交绘制
+
+
+        RenderSystem.enableDepthTest()
+        RenderSystem.disableBlend()
+        matrixStack.pop()
+    }
+
+
 
 }

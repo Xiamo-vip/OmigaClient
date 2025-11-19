@@ -56,8 +56,13 @@ object Hud : Module("Hud","HUD",-1, category = Category.Render) {
         val gui = GuiGraphicsAdapter(drawContext)
         val fps = MinecraftClient.getInstance().fpsDebugString
 
-        RenderUtil.drawString(drawContext,"CNM Client",10,10,Color.BLUE.rgb,25)
+        //RenderUtil.drawString(drawContext,"CNM Client",10,10,Color.BLUE.rgb,25)
+        drawRainbowString(drawContext,
+            "操你妈 Client",
+            10f,
+            10f, time, 5000f, 0.04f, 0.9f, 0.8f, 255, 1.0f,25);
 
+        RenderUtil.drawString(drawContext,"操你妈❤ Client",11f,11f,0,26)
 
 
         RenderUtil.drawString(drawContext, Omiga.clientVerson, 0, RenderUtil.getWindowsHeight()-FontUtils.getStringHeight(Omiga.clientVerson,hudModuleFontSize)*2-3, ColorUtils.color(255,255,255),hudModuleFontSize)
@@ -181,8 +186,8 @@ object Hud : Module("Hud","HUD",-1, category = Category.Render) {
 
 
 
-        RenderUtil.drawRoundedRect(drawContext,100f,100f,120f,120f, 10f,Color.BLUE.rgb)
-        RenderUtil.drawRect(drawContext,30,30,10,10, Color.BLUE.rgb)
+        //RenderUtil.drawRoundedRect(drawContext,100f,100f,120f,120f, 10f,Color.BLUE.rgb)
+        //RenderUtil.drawRect(drawContext,30,30,10,10, Color.BLUE.rgb)
 
 
 

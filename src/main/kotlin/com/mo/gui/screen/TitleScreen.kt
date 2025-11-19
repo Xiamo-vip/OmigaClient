@@ -29,10 +29,12 @@ class TitleScreen : Screen(Text.of("TitleScreen")) {
     private val title = "Omiga Client"
     private val titleSize = 40
 
-    private val buttonWidth = 120
-    private val buttonHeight = titleSize+10
+    private val buttonWidth = 180
+    private val buttonHeight = titleSize - 20
 
+    private val spacing = RenderUtil.getWindowsHeight()/4 - FontUtils.getStringHeight(title,titleSize)/2
 
+    var y = (spacing + RenderUtil.getWindowsHeight() * 0.4).toInt()
 
     private val buttons = CopyOnWriteArrayList<Button>()
 
@@ -67,7 +69,7 @@ class TitleScreen : Screen(Text.of("TitleScreen")) {
 
 
     fun registerButton(){
-        var y = RenderUtil.getWindowsHeight()/4 - FontUtils.getStringHeight(title,titleSize)/2 + buttonHeight+30
+
         buttons.add(
             Button((RenderUtil.getWindowsWidth()/2-buttonWidth/2),
                 y = y+(buttonHeight+10)*buttons.count(),
@@ -128,7 +130,7 @@ class TitleScreen : Screen(Text.of("TitleScreen")) {
             context,
             title,
             RenderUtil.getWindowsWidth()/2 - FontUtils.getStringWidth(title,titleSize)/2,
-            RenderUtil.getWindowsHeight()/4 - FontUtils.getStringHeight(title,titleSize)/2,
+            spacing,
             Color.WHITE.rgb,
             titleSize
             )
@@ -145,11 +147,11 @@ class TitleScreen : Screen(Text.of("TitleScreen")) {
     }
 
     private fun positionButtons() {
-        val startY = RenderUtil.getWindowsHeight()/4 - FontUtils.getStringHeight(title,titleSize)/2 + buttonHeight+30
+
 
         buttons.forEachIndexed{index, button ->
             button.x = (RenderUtil.getWindowsWidth()/2-buttonWidth/2)
-            button.y = startY+(buttonHeight+10)*index
+            button.y = y+(buttonHeight+10)*index
         }
     }
 

@@ -14,12 +14,15 @@
   },
   "client": [
     "MixinCamera",
+    "MixinEntityRenderer",
     "MixinHUD",
     "MixinKeyboard",
+    "MixinListWidget",
     "MixinLivingEntity",
     "MixinLivingEntityRenderer",
     "MixinScreen",
     "MixinSplash",
-    "MixinTick"
+    "MixinTick",
+    "MixinWorldRenderer"
   ]
 }

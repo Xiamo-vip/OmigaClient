@@ -51,7 +51,7 @@ open class Button( x : Int,  y : Int, width: Int, height: Int,val text : String,
     var background = ColorUtils.color(180,0,0,0)
     val b2a = 30
     var backgroundHover = ColorUtils.color(210 ,0,0,0)
-    val fontSize = 15
+    val fontSize = 10
     val fontColor = Color.WHITE.rgb
 
     open fun render(drawContext: DrawContext,mouseX : Int,mouseY : Int,delta : Float){
@@ -60,11 +60,7 @@ open class Button( x : Int,  y : Int, width: Int, height: Int,val text : String,
         if (hoverTime != 0L){
 
             val rawProgress = ((System.currentTimeMillis()-hoverTime).toFloat() / transition.toFloat())
-
-            // ⭐ 修正 1: 钳制进度值在 0.0f 到 1.0f 之间
             val clampedProgress = rawProgress.coerceIn(0.0f, 1.0f)
-
-
             if (!isHover){
                 val alpha = b2a* AnimationUtil.easeOutQuad(clampedProgress)
                 background = ColorUtils.color(210 - alpha.toInt(),0,0,0)
