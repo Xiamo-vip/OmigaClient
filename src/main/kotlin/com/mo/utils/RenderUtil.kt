@@ -4,18 +4,23 @@ package com.mo.utils
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.MinecraftClient
+import net.minecraft.client.gl.Framebuffer
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.render.*
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.LivingEntity
 import net.minecraft.util.Identifier
+import net.minecraft.util.math.Box
 import org.joml.Matrix4f
 import org.joml.Quaternionf
 import org.joml.Vector3f
 import java.awt.Color
+import kotlin.math.PI
 import kotlin.math.atan
+import kotlin.math.cos
 import kotlin.math.floor
 import kotlin.math.max
+import kotlin.math.sin
 
 object RenderUtil {
     val mc = MinecraftClient.getInstance()
@@ -198,33 +203,7 @@ object RenderUtil {
 
 
 
-    fun drawRoundedRect(context: DrawContext,x : Float , y: Float, width: Float,height: Float,radius : Float , color: Int){
-        val tessellator = Tessellator.getInstance()
-        val bufferBuilder = tessellator.buffer
-        var i = 0
-        RenderSystem.setShader(GameRenderer::getPositionColorProgram)
-        bufferBuilder.begin(VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_COLOR)
 
-        bufferBuilder.vertex(20.0,20.0,0.0)
-            .color(color).next()
-        bufferBuilder.vertex(5.0,40.0,0.0)
-            .color(color).next()
-        bufferBuilder.vertex(35.0,40.0,0.0)
-            .color(color).next()
-
-//        while (i <=90){
-//            val angle = Math.toRadians(i.toDouble())
-//            bufferBuilder.vertex((x+radius+ sin(angle)*radius).toDouble(),(y+radius - cos(angle)*radius).toDouble(),0.0)
-//                .color(color)
-//                .next()
-//            i+=3
-//        }
-
-        tessellator.draw()
-
-
-
-    }
 
 
     fun drawBlur(context: DrawContext,x: Float,y: Float,width: Float,height: Float){
@@ -336,87 +315,299 @@ object RenderUtil {
     }
 
 
-
     fun drawBox3D(
         matrixStack: MatrixStack,
-        x1: Float,
-        y1: Float,
-        z1 : Float,
-        width: Float,
-        heightY : Float, // 💡 推荐更名：Y 尺寸命名为 heightY
-        depthZ : Float, // 💡 推荐更名：Z 尺寸命名为 depthZ
-        color: Int
+        box: Box,
+        r: Float = 0.5f,
+        g: Float = 1.0f,
+        b: Float = 1.0f,
+        a: Float = 1.0f,
     ) {
-        // 定义边界坐标
-        val x2 = x1 + width
-        val y2 = y1 + heightY // 修正后的 Y 最大坐标
-        val z2 = z1 + depthZ
 
-        // 绘制设置
-        matrixStack.push()
-        RenderSystem.enableBlend()
-        RenderSystem.defaultBlendFunc()
-        RenderSystem.disableDepthTest() // 确保透视
-        RenderSystem.setShader(GameRenderer::getPositionColorProgram)
+
+
+        val matrix4f = matrixStack.peek().positionMatrix
+        val matrix3f = matrixStack.peek().normalMatrix
+
+        val fullBright = 0xF000F0
+
+
 
         val tessellator = Tessellator.getInstance()
-        val bufferBuilder = tessellator.buffer
-        val matrix4f = matrixStack.peek().positionMatrix
-        RenderSystem.lineWidth(1.5f)
-        // ⭐ 采用 LINES 模式：一次性绘制所有 12 条边 (12 * 2 = 24 个顶点)
-        bufferBuilder.begin(VertexFormat.DrawMode.LINES, VertexFormats.POSITION_COLOR)
-
-        // --- 1. 绘制前脸 (Z=z1) ---
-        // Bottom: V1(x1, y1, z1) -> V2(x2, y1, z1)
-        bufferBuilder.vertex(matrix4f, x1, y1, z1).color(color).next()
-        bufferBuilder.vertex(matrix4f, x2, y1, z1).color(color).next()
-        // Right: V2(x2, y1, z1) -> V3(x2, y2, z1)
-        bufferBuilder.vertex(matrix4f, x2, y1, z1).color(color).next()
-        bufferBuilder.vertex(matrix4f, x2, y2, z1).color(color).next()
-        // Top: V3(x2, y2, z1) -> V4(x1, y2, z1)
-        bufferBuilder.vertex(matrix4f, x2, y2, z1).color(color).next()
-        bufferBuilder.vertex(matrix4f, x1, y2, z1).color(color).next()
-        // Left: V4(x1, y2, z1) -> V1(x1, y1, z1)
-        bufferBuilder.vertex(matrix4f, x1, y2, z1).color(color).next()
-        bufferBuilder.vertex(matrix4f, x1, y1, z1).color(color).next()
-
-        // --- 2. 绘制后脸 (Z=z2) ---
-        // Bottom: V5(x1, y1, z2) -> V6(x2, y1, z2)
-        bufferBuilder.vertex(matrix4f, x1, y1, z2).color(color).next()
-        bufferBuilder.vertex(matrix4f, x2, y1, z2).color(color).next()
-        // Right: V6(x2, y1, z2) -> V7(x2, y2, z2)
-        bufferBuilder.vertex(matrix4f, x2, y1, z2).color(color).next()
-        bufferBuilder.vertex(matrix4f, x2, y2, z2).color(color).next()
-        // Top: V7(x2, y2, z2) -> V8(x1, y2, z2)
-        bufferBuilder.vertex(matrix4f, x2, y2, z2).color(color).next()
-        bufferBuilder.vertex(matrix4f, x1, y2, z2).color(color).next()
-        // Left: V8(x1, y2, z2) -> V5(x1, y1, z2)
-        bufferBuilder.vertex(matrix4f, x1, y2, z2).color(color).next()
-        bufferBuilder.vertex(matrix4f, x1, y1, z2).color(color).next()
-
-        // --- 3. 绘制连接边 (4 条垂直边) ---
-        // Front-Left V1(x1, y1, z1) -> Back-Left V5(x1, y1, z2)
-        bufferBuilder.vertex(matrix4f, x1, y1, z1).color(color).next()
-        bufferBuilder.vertex(matrix4f, x1, y1, z2).color(color).next()
-        // Front-Right V2(x2, y1, z1) -> Back-Right V6(x2, y1, z2)
-        bufferBuilder.vertex(matrix4f, x2, y1, z1).color(color).next()
-        bufferBuilder.vertex(matrix4f, x2, y1, z2).color(color).next()
-        // Front-Top-Right V3(x2, y2, z1) -> Back-Top-Right V7(x2, y2, z2)
-        bufferBuilder.vertex(matrix4f, x2, y2, z1).color(color).next()
-        bufferBuilder.vertex(matrix4f, x2, y2, z2).color(color).next()
-        // Front-Top-Left V4(x1, y2, z1) -> Back-Top-Left V8(x1, y2, z2)
-        bufferBuilder.vertex(matrix4f, x1, y2, z1).color(color).next()
-        bufferBuilder.vertex(matrix4f, x1, y2, z2).color(color).next()
+        val buffer = tessellator.buffer
+        val matrix = matrixStack.peek().positionMatrix
 
 
-        tessellator.draw() // 提交绘制
+        val minX = box.minX.toFloat()
+        val minY = box.minY.toFloat()
+        val minZ = box.minZ.toFloat()
+        val maxX = box.maxX.toFloat()
+        val maxY = box.maxY.toFloat()
+        val maxZ = box.maxZ.toFloat()
+
+        RenderSystem.enableBlend()
+        RenderSystem.defaultBlendFunc()
+        RenderSystem.disableDepthTest()
+        RenderSystem.lineWidth(2f)
+        RenderSystem.setShader(GameRenderer::getPositionColorProgram)
 
 
+        buffer.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR)
+
+
+        buffer.vertex(matrix, minX, minY, minZ).color(r, g, b, a).next()
+        buffer.vertex(matrix, maxX, minY, minZ).color(r, g, b, a).next()
+        buffer.vertex(matrix, maxX, minY, minZ).color(r, g, b, a).next()
+        buffer.vertex(matrix, maxX, minY, maxZ).color(r, g, b, a).next()
+
+        buffer.vertex(matrix, maxX, minY, maxZ).color(r, g, b, a).next()
+        buffer.vertex(matrix, minX, minY, maxZ).color(r, g, b, a).next()
+
+        buffer.vertex(matrix, minX, minY, maxZ).color(r, g, b, a).next()
+        buffer.vertex(matrix, minX, minY, minZ).color(r, g, b, a).next()
+
+
+        buffer.vertex(matrix, minX, maxY, minZ).color(r, g, b, a).next()
+        buffer.vertex(matrix, maxX, maxY, minZ).color(r, g, b, a).next()
+
+        buffer.vertex(matrix, maxX, maxY, minZ).color(r, g, b, a).next()
+        buffer.vertex(matrix, maxX, maxY, maxZ).color(r, g, b, a).next()
+
+        buffer.vertex(matrix, maxX, maxY, maxZ).color(r, g, b, a).next()
+        buffer.vertex(matrix, minX, maxY, maxZ).color(r, g, b, a).next()
+
+        buffer.vertex(matrix, minX, maxY, maxZ).color(r, g, b, a).next()
+        buffer.vertex(matrix, minX, maxY, minZ).color(r, g, b, a).next()
+
+
+        buffer.vertex(matrix, minX, minY, minZ).color(r, g, b, a).next()
+        buffer.vertex(matrix, minX, maxY, minZ).color(r, g, b, a).next()
+
+        buffer.vertex(matrix, maxX, minY, minZ).color(r, g, b, a).next()
+        buffer.vertex(matrix, maxX, maxY, minZ).color(r, g, b, a).next()
+
+        buffer.vertex(matrix, maxX, minY, maxZ).color(r, g, b, a).next()
+        buffer.vertex(matrix, maxX, maxY, maxZ).color(r, g, b, a).next()
+
+        buffer.vertex(matrix, minX, minY, maxZ).color(r, g, b, a).next()
+        buffer.vertex(matrix, minX, maxY, maxZ).color(r, g, b, a).next()
+
+        tessellator.draw()
         RenderSystem.enableDepthTest()
         RenderSystem.disableBlend()
-        matrixStack.pop()
+
+
+
+
+
     }
 
 
+    fun drawRoundedRect(context: DrawContext, x: Int, y: Int, width: Int, height: Int,  color: Int){
+        drawRoundedRect(context,x.toFloat(),y.toFloat(),width.toFloat(),height.toFloat(),color)
+    }
+    fun drawRoundedRect(context: DrawContext, x: Float, y: Float, width: Float, height: Float,  color: Int,radius : Int  = 10) {
+
+
+        var tessellator = Tessellator.getInstance()
+        var bufferBuilder = tessellator.buffer
+        val matrix4f = context.matrices.peek().positionMatrix
+
+
+        val z = 10f
+
+        val radius = radius
+        RenderSystem.enableBlend()
+        RenderSystem.defaultBlendFunc()
+        RenderSystem.setShader(GameRenderer::getPositionColorProgram)
+
+        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR)
+        //绘制中间矩形
+
+        bufferBuilder.vertex(matrix4f,
+            x,
+            (y+radius).toFloat(),
+            z
+            ).color(color).next()
+        bufferBuilder.vertex(matrix4f,
+            x,
+            (y+radius+ (height-2*radius)).toFloat(),
+            z
+        ).color(color).next()
+        bufferBuilder.vertex(matrix4f,
+            x+width,
+            (y+radius+ (height-2*radius)).toFloat(),
+            z
+        ).color(color).next()
+        bufferBuilder.vertex(matrix4f,
+            x+width,
+            (y+radius).toFloat(),
+            z
+        ).color(color).next()
+        tessellator.draw()
+
+        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR)
+        //上面的矩形
+        bufferBuilder.vertex(matrix4f,
+            (x+radius).toFloat(),
+            y,
+            z
+        ).color(color).next()
+
+        bufferBuilder.vertex(matrix4f,
+            (x+radius).toFloat(),
+            (y+radius).toFloat(),
+            z
+        ).color(color).next()
+
+
+        bufferBuilder.vertex(matrix4f,
+            (x+radius + (width - 2 * radius)).toFloat(),
+            (y+radius).toFloat(),
+            z
+        ).color(color).next()
+
+        bufferBuilder.vertex(matrix4f,
+            (x+radius + (width - 2 * radius)).toFloat(),
+            y,
+            z
+        ).color(color).next()
+
+
+        tessellator.draw()
+
+
+        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR)
+
+
+        //下面的矩形
+        bufferBuilder.vertex(matrix4f,
+            (x+radius).toFloat(),
+            (y + height-radius).toFloat(),
+            z
+        ).color(color).next()
+
+        bufferBuilder.vertex(matrix4f,
+            (x+radius).toFloat(),
+            (y + height).toFloat(),
+            z
+        ).color(color).next()
+
+        bufferBuilder.vertex(matrix4f,
+            (x+radius + (width - 2 * radius)).toFloat(),
+            (y + height).toFloat(),
+            z
+        ).color(color).next()
+
+        bufferBuilder.vertex(matrix4f,
+            (x+radius + (width - 2 * radius)).toFloat(),
+            (y + height-radius).toFloat(),
+            z
+        ).color(color).next()
+
+
+
+
+
+        tessellator.draw()
+
+        bufferBuilder.begin(VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_COLOR)
+        bufferBuilder.vertex( matrix4f,(x+radius).toFloat(),(y+height -radius).toFloat(),z).color(color).next()
+        var i = 0.0
+        while ( i <= 90){
+            bufferBuilder.vertex( matrix4f,
+                ((x+radius).toFloat() - radius * cos(degreesToRadians(i))).toFloat(),
+                ((y+height-radius).toFloat() + radius * sin(degreesToRadians(i))).toFloat()
+                ,z
+            ).color(color).next()
+
+            bufferBuilder.vertex( matrix4f,(x+radius).toFloat(),(y+height-radius).toFloat(),z).color(color).next()
+            i+=1
+        }
+        tessellator.draw()
+        bufferBuilder.begin(VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_COLOR)
+        bufferBuilder.vertex( matrix4f,(x+width- radius).toFloat(),(y+radius).toFloat(),z).color(color).next()
+        i = 0.0
+        while ( i <= 90){
+            bufferBuilder.vertex( matrix4f,
+                ((x+width- radius).toFloat() + radius * cos(degreesToRadians(i))).toFloat(),
+                ((y+radius).toFloat() - radius * sin(degreesToRadians(i))).toFloat()
+                ,z
+            ).color(color).next()
+
+            bufferBuilder.vertex( matrix4f,(x+width- radius).toFloat(),(y+radius).toFloat(),z).color(color).next()
+            i+=1
+        }
+        tessellator.draw()
+        bufferBuilder.begin(VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_COLOR)
+        bufferBuilder.vertex( matrix4f,(x+radius).toFloat(),(y+radius).toFloat(),z).color(color).next()
+        i = 0.0
+        while ( i <= 90){
+            bufferBuilder.vertex( matrix4f,
+                ((x+radius).toFloat() - radius * sin(degreesToRadians(i))).toFloat(),
+                ((y+radius).toFloat() - radius * cos(degreesToRadians(i))).toFloat()
+                ,z
+            ).color(color).next()
+
+            bufferBuilder.vertex( matrix4f,(x+radius).toFloat(),(y+radius).toFloat(),z).color(color).next()
+            i+=1
+        }
+        tessellator.draw()
+
+
+        bufferBuilder.begin(VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_COLOR)
+        bufferBuilder.vertex( matrix4f,(x+width-radius).toFloat(),(y+height-radius).toFloat(),z).color(color).next()
+        i = 0.0
+        while ( i <= 90){
+            bufferBuilder.vertex( matrix4f,
+                ((x+width-radius).toFloat() + radius * sin(degreesToRadians(i))).toFloat(),
+                ((y+height-radius).toFloat() + radius * cos(degreesToRadians(i))).toFloat()
+                ,z
+            ).color(color).next()
+
+            bufferBuilder.vertex( matrix4f,(x+width-radius).toFloat(),(y+height-radius).toFloat(),z).color(color).next()
+            i+=1
+        }
+        tessellator.draw()
+
+//        bufferBuilder.vertex( matrix4f,(x+width-radius).toFloat(),(y+radius).toFloat(),z).color(color).next()
+//        for (a in 0..360){
+//            if (a<=90){
+//                bufferBuilder.vertex(matrix4f,
+//                    ((x+width-radius).toFloat() + radius * sin(degreesToRadians(i))).toFloat(),
+//                    ((y+radius).toFloat() - radius * cos(degreesToRadians(i))).toFloat(),
+//                    z
+//                ).color(255).next()
+//
+//            }
+//
+//        }
+        RenderSystem.disableBlend()
+
+
+
+
+
+
+
+
+
+
+
+    }
+
+    private fun degreesToRadians(degrees: Double): Double {
+        return degrees * Math.PI / 180.0
+    }
 
 }
+
+
+
+
+
+
+
+
+
+

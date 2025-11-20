@@ -5,7 +5,11 @@ import net.minecraft.client.gui.screen.Overlay
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.screen.SplashOverlay
 import net.minecraft.client.gui.screen.TitleScreen
+import net.minecraft.client.render.VertexConsumerProvider
+import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.entity.Entity
 import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.floatprovider.FloatProvider
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo
 
 
@@ -44,3 +48,6 @@ class OnLoadingFinished(): Event(){
 class Tick() : Event()
 
 class TravelEvent(val movementInput : Vec3d,val ci : CallbackInfo) : Event()
+
+
+class RenderEntityEvent(val entity: Entity,val yaw : Float,val tickDelta: Float,val matrixStack: MatrixStack,val vertexConsumers: VertexConsumerProvider) : Event()

@@ -2,6 +2,7 @@ package com.mo.event
 
 import com.mo.gui.ClickGui
 import com.mo.gui.screen.OverlayScreen
+import com.mo.module.Category
 import com.mo.module.ModuleManager
 import com.mo.module.ModuleManager.modules
 import net.minecraft.client.MinecraftClient
@@ -63,6 +64,14 @@ object  EvenManager {
     fun onTravel(event: TravelEvent){
         modules.filter { module -> module.enabled }.forEach {
             module -> module.travel(event.movementInput,event.ci)
+        }
+    }
+
+
+    @EventTarget
+    fun onRenderEntity(event: RenderEntityEvent){
+        modules.filter { it.enabled && it.category == Category.Render }.forEach { module ->
+            module.onRenderEntity(event.entity,event.yaw,event.matrixStack,event.vertexConsumers,event.tickDelta)
         }
     }
 

@@ -6,6 +6,7 @@ import com.mo.module.modules.movement.Sprint
 import com.mo.module.player.rotaion.Rotations
 import com.mo.module.render.Brightness
 import com.mo.module.render.ClickGui
+import com.mo.module.render.ESP
 import com.mo.module.render.Hud
 import com.mo.module.render.notification.Notification
 import java.util.stream.Collectors
@@ -25,6 +26,7 @@ object ModuleManager {
         modules.add(Speed)
         modules.add(KillAura)
         modules.add(Rotations)
+        modules.add(ESP)
 
     }
 

@@ -64,19 +64,19 @@ open class Button( x : Int,  y : Int, width: Int, height: Int,val text : String,
             if (!isHover){
                 val alpha = b2a* AnimationUtil.easeOutQuad(clampedProgress)
                 background = ColorUtils.color(210 - alpha.toInt(),0,0,0)
-                RenderUtil.drawRect(drawContext ,x,y,width,height,background)
+                RenderUtil.drawRoundedRect(drawContext ,x,y,width,height,background)
 
             }else{
                 val alpha = b2a* AnimationUtil.easeOutQuad(clampedProgress)
                 backgroundHover = ColorUtils.color(180 + alpha.toInt(),0,0,0)
-                RenderUtil.drawRect(drawContext,x,y,width,height,backgroundHover)
+                RenderUtil.drawRoundedRect(drawContext,x,y,width,height,backgroundHover)
             }
 
         } else {
             if (isHover) {
-                RenderUtil.drawRect(drawContext, x, y, width, height, backgroundHover)
+                RenderUtil.drawRoundedRect(drawContext, x, y, width, height, backgroundHover)
             } else {
-                RenderUtil.drawRect(drawContext, x, y, width, height, background)
+                RenderUtil.drawRoundedRect(drawContext, x, y, width, height, background)
             }
         }
 

@@ -32,9 +32,9 @@ class TitleScreen : Screen(Text.of("TitleScreen")) {
     private val buttonWidth = 180
     private val buttonHeight = titleSize - 20
 
-    private val spacing = RenderUtil.getWindowsHeight()/4 - FontUtils.getStringHeight(title,titleSize)/2
+    private val spacing = RenderUtil.getWindowsHeight()/5 - FontUtils.getStringHeight(title,titleSize)/2
 
-    var y = (spacing + RenderUtil.getWindowsHeight() * 0.4).toInt()
+    var y = (RenderUtil.getWindowsHeight() * 0.5).toInt()
 
     private val buttons = CopyOnWriteArrayList<Button>()
 
@@ -113,7 +113,7 @@ class TitleScreen : Screen(Text.of("TitleScreen")) {
         mouseY: Int,
         delta: Float
     ) {
-
+        positionButtons()
         Identifier.of("omiga","/background.png")?.let {
             RenderUtil.drawImage(context,
                 it,
@@ -147,8 +147,6 @@ class TitleScreen : Screen(Text.of("TitleScreen")) {
     }
 
     private fun positionButtons() {
-
-
         buttons.forEachIndexed{index, button ->
             button.x = (RenderUtil.getWindowsWidth()/2-buttonWidth/2)
             button.y = y+(buttonHeight+10)*index

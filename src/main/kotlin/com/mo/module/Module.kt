@@ -3,6 +3,9 @@ package com.mo.module
 import com.mo.module.render.notification.Notification
 import com.mo.module.render.notification.NotificationManager
 import net.minecraft.client.gui.DrawContext
+import net.minecraft.client.render.VertexConsumerProvider
+import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.entity.Entity
 import net.minecraft.util.math.Vec3d
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo
 import kotlin.math.abs
@@ -76,5 +79,9 @@ open class Module(val name: String, val description:String, val key: Int, val ca
     }
 
     open fun onRender(drawContext: DrawContext,tickDelta : Float){}
+
+
+
+    open fun onRenderEntity(entity: Entity, yaw: Float, matrixStack: MatrixStack, vertexConsumers: VertexConsumerProvider,tickDelta: Float) {}
 
 }

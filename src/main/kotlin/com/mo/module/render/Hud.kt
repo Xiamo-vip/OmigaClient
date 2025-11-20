@@ -180,6 +180,16 @@ object Hud : Module("Hud","HUD",-1, category = Category.Render) {
 
         }
 
+        RenderUtil.drawRoundedRect(
+            drawContext,
+            50f,
+            50f,
+            200f,
+            80f,
+            ColorUtils.color(200,53,20,61)
+        )
+
+
 
 
 
@@ -191,7 +201,7 @@ object Hud : Module("Hud","HUD",-1, category = Category.Render) {
 
 
 
-        MinecraftClient.getInstance().player?.let { RenderUtil.drawEntity(drawContext,100,100,200,200,30,1f, (RenderUtil.getWindowsWidth()/2).toFloat(),(RenderUtil.getWindowsHeight()/2).toFloat(), it) }
+        //MinecraftClient.getInstance().player?.let { RenderUtil.drawEntity(drawContext,100,100,200,200,30,1f, (RenderUtil.getWindowsWidth()/2).toFloat(),(RenderUtil.getWindowsHeight()/2).toFloat(), it) }
 
     }
 
