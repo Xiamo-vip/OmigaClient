@@ -50,9 +50,9 @@
 
 * Minecraft 1.20.4 版本
 
-* [F](https://fabricmc.net/use/)[abr](https://fabricmc.net/use/)[ic Lo](https://fabricmc.net/use/)[ader](https://fabricmc.net/use/)（最新稳定版）
+* [F](https://fabricmc.net/use/)[abr](https://fabricmc.net/use/)[ic Lo](https://fabricmc.net/use/)[ader](https://fabricmc.net/use/)
 
-* [Ja](https://adoptium.net/)[va 17](https://adoptium.net/)[+](https://adoptium.net/)（必须！）
+* [Ja](https://adoptium.net/)[va 17](https://adoptium.net/)[+](https://adoptium.net/)
 
 * 丝滑转头 完美圆角 缓动动画 流畅视觉
 <br>
