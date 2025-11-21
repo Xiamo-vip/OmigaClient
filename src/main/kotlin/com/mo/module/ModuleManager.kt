@@ -8,6 +8,7 @@ import com.mo.module.render.Brightness
 import com.mo.module.render.ClickGui
 import com.mo.module.render.ESP
 import com.mo.module.render.Hud
+import com.mo.module.render.NameTags
 import com.mo.module.render.notification.Notification
 import java.util.stream.Collectors
 
@@ -27,6 +28,7 @@ object ModuleManager {
         modules.add(KillAura)
         modules.add(Rotations)
         modules.add(ESP)
+        modules.add(NameTags)
 
     }
 

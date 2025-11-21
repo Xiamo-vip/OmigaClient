@@ -37,6 +37,7 @@ class ClickGuiWindow(val category: Category,var x : Int,var y : Int) {
     var animationProgress = 0F
     var fadeInTime = fadeInTimeR
 
+    val radius = 2
     val moduleWidth = 70
     val moduleHeight = 15
     init {
@@ -60,7 +61,6 @@ class ClickGuiWindow(val category: Category,var x : Int,var y : Int) {
         if (animationProgress >=1) isShow = true
         if (isShow == false){
             animationProgress = ((System.currentTimeMillis() - showTimer).toFloat() / fadeInTime)
-            println(animationProgress)
             gui.translate(x+width.toDouble()/2,y+height.toDouble()/2,0.0)
             gui.scale(1* AnimationUtil.easeOutQuad(
                 animationProgress
@@ -103,7 +103,8 @@ class ClickGuiWindow(val category: Category,var x : Int,var y : Int) {
                         moduleY,
                         moduleWidth,
                         moduleHeight,
-                        moduleEnabledColor)
+                        moduleEnabledColor,
+                        )
 
                     RenderUtil.drawString(
                         context,
@@ -116,7 +117,8 @@ class ClickGuiWindow(val category: Category,var x : Int,var y : Int) {
                         context,
                         moduleX,
                         moduleY
-                        ,moduleWidth,moduleHeight, moduleColor)
+                        ,moduleWidth,moduleHeight, moduleColor,
+                        )
 
                     RenderUtil.drawString(
                         context,

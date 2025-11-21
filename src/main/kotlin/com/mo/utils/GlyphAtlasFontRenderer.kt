@@ -6,6 +6,7 @@ import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.render.*
 import net.minecraft.client.texture.NativeImage
 import net.minecraft.client.texture.NativeImageBackedTexture
+import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.util.Identifier
 import java.awt.*
 import java.awt.font.FontRenderContext
@@ -78,6 +79,53 @@ class GlyphAtlasFontRenderer(
         RenderSystem.setShaderTexture(0, atlas.id)
 
         val matrix = context.matrices.peek().positionMatrix
+        val tess = Tessellator.getInstance()
+        val buf = tess.buffer
+
+        buf.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR)
+
+        var penX = x
+        val (ascent, _) = getMetrics(size)
+        val penY = y + ascent
+
+        val a = (color ushr 24) and 255
+        val r = (color ushr 16) and 255
+        val g = (color ushr 8) and 255
+        val b = color and 255
+
+        for (cp in str.codePoints()) {
+            val glyph = loadGlyph(cp, size)
+            if (glyph == null) {
+                penX += size / 2
+                continue
+            }
+
+            val x0 = (penX + glyph.xOffset).toFloat()
+            val y0 = (penY - glyph.yOffset).toFloat()
+            val x1 = x0 + glyph.width
+            val y1 = y0 + glyph.height
+
+            buf.vertex(matrix, x0, y1, 0f).texture(glyph.u0, glyph.v1).color(r, g, b, a).next()
+            buf.vertex(matrix, x1, y1, 0f).texture(glyph.u1, glyph.v1).color(r, g, b, a).next()
+            buf.vertex(matrix, x1, y0, 0f).texture(glyph.u1, glyph.v0).color(r, g, b, a).next()
+            buf.vertex(matrix, x0, y0, 0f).texture(glyph.u0, glyph.v0).color(r, g, b, a).next()
+
+            penX += glyph.xAdvance
+        }
+
+        BufferRenderer.drawWithGlobalProgram(buf.end())
+        RenderSystem.disableBlend()
+    }
+
+    fun drawString(matrixStack: MatrixStack, str: String, x: Int, y: Int, color: Int, size: Int) {
+        if (str.isEmpty()) return
+
+        RenderSystem.enableBlend()
+        RenderSystem.defaultBlendFunc()
+        RenderSystem.setShader(GameRenderer::getPositionTexColorProgram)
+        RenderSystem.setShaderTexture(0, atlas.id)
+
+        val matrix = matrixStack.peek().positionMatrix
         val tess = Tessellator.getInstance()
         val buf = tess.buffer
 

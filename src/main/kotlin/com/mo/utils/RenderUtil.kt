@@ -57,6 +57,34 @@ object RenderUtil {
         drawContext.fill(x, y, (x + width * (1 - progress)).toInt(), y + height, color)
     }
 
+    fun drawRoundedProgress_reverse(
+        matrixStack: MatrixStack,
+        x: Int,
+        y: Int,
+        width: Int,
+        height: Int,
+        progress: Float,
+        color: Int,
+        radius: Int
+    ) {
+        drawRoundedRect(matrixStack,x,y, (x + width * (1 - progress)).toInt(),y + height,color,radius)
+    }
+
+    fun drawRoundedProgress(
+        matrixStack: MatrixStack,
+        x: Float,
+        y: Float,
+        width: Float,
+        height: Float,
+        progress: Float,
+        color: Int,
+        radius: Int
+    ) {
+        drawRoundedRect(matrixStack,x,y, (x + width * ( progress)).toFloat(),(y + height).toFloat(),color,radius)
+    }
+
+
+
     fun HSBtoARGB(hue: Float, sat: Float, bri: Float, alpha: Int): Int {
         val rgb = Color.HSBtoRGB(hue, sat, bri)
 
@@ -88,6 +116,19 @@ object RenderUtil {
         FontUtils.drawCustomString(drawContext,text,x,y,color,size)
 
     }
+
+    fun drawString(
+        matrixStack: MatrixStack,
+        text: String,
+        x: Int,
+        y: Int,
+        color: Int,
+        size: Int
+    ){
+        FontUtils.drawCustomString(matrixStack,text,x,y,color,size)
+
+    }
+
 
     fun drawStringWithShadow(
         drawContext: DrawContext,
@@ -403,9 +444,25 @@ object RenderUtil {
     }
 
 
-    fun drawRoundedRect(context: DrawContext, x: Int, y: Int, width: Int, height: Int,  color: Int){
-        drawRoundedRect(context,x.toFloat(),y.toFloat(),width.toFloat(),height.toFloat(),color)
+
+    fun drawRoundedRect(context: DrawContext, x: Int, y: Int, width: Float, height: Float,  color: Int, radius: Int){
+        drawRoundedRect(context,x.toFloat(),y.toFloat(),width.toFloat(),height.toFloat(),color,radius)
     }
+
+    fun drawRoundedRect(context: DrawContext, x: Float, y: Float, width: Int, height: Int,  color: Int, radius: Int){
+        drawRoundedRect(context,x.toFloat(),y.toFloat(),width.toFloat(),height.toFloat(),color,radius)
+    }
+
+    fun drawRoundedRect(context: DrawContext, x: Int, y: Int, width: Int, height: Int,  color: Int, radius: Int){
+        drawRoundedRect(context,x.toFloat(),y.toFloat(),width.toFloat(),height.toFloat(),color,radius)
+    }
+
+    fun drawRoundedRect(matrixStack: MatrixStack, x: Int, y: Int, width: Int, height: Int,  color: Int, radius: Int){
+        drawRoundedRect(matrixStack,x.toFloat(),y.toFloat(),width.toFloat(),height.toFloat(),color,radius)
+    }
+
+
+
     fun drawRoundedRect(context: DrawContext, x: Float, y: Float, width: Float, height: Float,  color: Int,radius : Int  = 10) {
 
 
@@ -595,10 +652,202 @@ object RenderUtil {
 
 
     }
+    fun drawRoundedRect(matrixStack: MatrixStack, x: Float, y: Float, width: Float, height: Float,  color: Int,radius : Int  = 10) {
+
+
+        var tessellator = Tessellator.getInstance()
+        var bufferBuilder = tessellator.buffer
+        val matrix4f = matrixStack.peek().positionMatrix
+
+
+        val z = 10f
+
+        val radius = radius
+        RenderSystem.enableBlend()
+        RenderSystem.defaultBlendFunc()
+        RenderSystem.setShader(GameRenderer::getPositionColorProgram)
+
+        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR)
+        //绘制中间矩形
+
+        bufferBuilder.vertex(matrix4f,
+            x,
+            (y+radius).toFloat(),
+            z
+        ).color(color).next()
+        bufferBuilder.vertex(matrix4f,
+            x,
+            (y+radius+ (height-2*radius)).toFloat(),
+            z
+        ).color(color).next()
+        bufferBuilder.vertex(matrix4f,
+            x+width,
+            (y+radius+ (height-2*radius)).toFloat(),
+            z
+        ).color(color).next()
+        bufferBuilder.vertex(matrix4f,
+            x+width,
+            (y+radius).toFloat(),
+            z
+        ).color(color).next()
+        tessellator.draw()
+
+        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR)
+        //上面的矩形
+        bufferBuilder.vertex(matrix4f,
+            (x+radius).toFloat(),
+            y,
+            z
+        ).color(color).next()
+
+        bufferBuilder.vertex(matrix4f,
+            (x+radius).toFloat(),
+            (y+radius).toFloat(),
+            z
+        ).color(color).next()
+
+
+        bufferBuilder.vertex(matrix4f,
+            (x+radius + (width - 2 * radius)).toFloat(),
+            (y+radius).toFloat(),
+            z
+        ).color(color).next()
+
+        bufferBuilder.vertex(matrix4f,
+            (x+radius + (width - 2 * radius)).toFloat(),
+            y,
+            z
+        ).color(color).next()
+
+
+        tessellator.draw()
+
+
+        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR)
+
+
+        //下面的矩形
+        bufferBuilder.vertex(matrix4f,
+            (x+radius).toFloat(),
+            (y + height-radius).toFloat(),
+            z
+        ).color(color).next()
+
+        bufferBuilder.vertex(matrix4f,
+            (x+radius).toFloat(),
+            (y + height).toFloat(),
+            z
+        ).color(color).next()
+
+        bufferBuilder.vertex(matrix4f,
+            (x+radius + (width - 2 * radius)).toFloat(),
+            (y + height).toFloat(),
+            z
+        ).color(color).next()
+
+        bufferBuilder.vertex(matrix4f,
+            (x+radius + (width - 2 * radius)).toFloat(),
+            (y + height-radius).toFloat(),
+            z
+        ).color(color).next()
+
+
+
+
+
+        tessellator.draw()
+
+        bufferBuilder.begin(VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_COLOR)
+        bufferBuilder.vertex( matrix4f,(x+radius).toFloat(),(y+height -radius).toFloat(),z).color(color).next()
+        var i = 0.0
+        while ( i <= 90){
+            bufferBuilder.vertex( matrix4f,
+                ((x+radius).toFloat() - radius * cos(degreesToRadians(i))).toFloat(),
+                ((y+height-radius).toFloat() + radius * sin(degreesToRadians(i))).toFloat()
+                ,z
+            ).color(color).next()
+
+            bufferBuilder.vertex( matrix4f,(x+radius).toFloat(),(y+height-radius).toFloat(),z).color(color).next()
+            i+=1
+        }
+        tessellator.draw()
+        bufferBuilder.begin(VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_COLOR)
+        bufferBuilder.vertex( matrix4f,(x+width- radius).toFloat(),(y+radius).toFloat(),z).color(color).next()
+        i = 0.0
+        while ( i <= 90){
+            bufferBuilder.vertex( matrix4f,
+                ((x+width- radius).toFloat() + radius * cos(degreesToRadians(i))).toFloat(),
+                ((y+radius).toFloat() - radius * sin(degreesToRadians(i))).toFloat()
+                ,z
+            ).color(color).next()
+
+            bufferBuilder.vertex( matrix4f,(x+width- radius).toFloat(),(y+radius).toFloat(),z).color(color).next()
+            i+=1
+        }
+        tessellator.draw()
+        bufferBuilder.begin(VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_COLOR)
+        bufferBuilder.vertex( matrix4f,(x+radius).toFloat(),(y+radius).toFloat(),z).color(color).next()
+        i = 0.0
+        while ( i <= 90){
+            bufferBuilder.vertex( matrix4f,
+                ((x+radius).toFloat() - radius * sin(degreesToRadians(i))).toFloat(),
+                ((y+radius).toFloat() - radius * cos(degreesToRadians(i))).toFloat()
+                ,z
+            ).color(color).next()
+
+            bufferBuilder.vertex( matrix4f,(x+radius).toFloat(),(y+radius).toFloat(),z).color(color).next()
+            i+=1
+        }
+        tessellator.draw()
+
+
+        bufferBuilder.begin(VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_COLOR)
+        bufferBuilder.vertex( matrix4f,(x+width-radius).toFloat(),(y+height-radius).toFloat(),z).color(color).next()
+        i = 0.0
+        while ( i <= 90){
+            bufferBuilder.vertex( matrix4f,
+                ((x+width-radius).toFloat() + radius * sin(degreesToRadians(i))).toFloat(),
+                ((y+height-radius).toFloat() + radius * cos(degreesToRadians(i))).toFloat()
+                ,z
+            ).color(color).next()
+
+            bufferBuilder.vertex( matrix4f,(x+width-radius).toFloat(),(y+height-radius).toFloat(),z).color(color).next()
+            i+=1
+        }
+        tessellator.draw()
+
+//        bufferBuilder.vertex( matrix4f,(x+width-radius).toFloat(),(y+radius).toFloat(),z).color(color).next()
+//        for (a in 0..360){
+//            if (a<=90){
+//                bufferBuilder.vertex(matrix4f,
+//                    ((x+width-radius).toFloat() + radius * sin(degreesToRadians(i))).toFloat(),
+//                    ((y+radius).toFloat() - radius * cos(degreesToRadians(i))).toFloat(),
+//                    z
+//                ).color(255).next()
+//
+//            }
+//
+//        }
+        RenderSystem.disableBlend()
+
+
+
+
+
+
+
+
+
+
+
+    }
 
     private fun degreesToRadians(degrees: Double): Double {
         return degrees * Math.PI / 180.0
     }
+
+
+
 
 }
 

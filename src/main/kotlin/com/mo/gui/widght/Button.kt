@@ -48,6 +48,8 @@ open class Button( x : Int,  y : Int, width: Int, height: Int,val text : String,
 
     var hoverTime : Long = 0L
 
+    val radius : Int = 10
+
     var background = ColorUtils.color(180,0,0,0)
     val b2a = 30
     var backgroundHover = ColorUtils.color(210 ,0,0,0)
@@ -64,19 +66,19 @@ open class Button( x : Int,  y : Int, width: Int, height: Int,val text : String,
             if (!isHover){
                 val alpha = b2a* AnimationUtil.easeOutQuad(clampedProgress)
                 background = ColorUtils.color(210 - alpha.toInt(),0,0,0)
-                RenderUtil.drawRoundedRect(drawContext ,x,y,width,height,background)
+                RenderUtil.drawRoundedRect(drawContext ,x,y,width,height,background,radius)
 
             }else{
                 val alpha = b2a* AnimationUtil.easeOutQuad(clampedProgress)
                 backgroundHover = ColorUtils.color(180 + alpha.toInt(),0,0,0)
-                RenderUtil.drawRoundedRect(drawContext,x,y,width,height,backgroundHover)
+                RenderUtil.drawRoundedRect(drawContext,x,y,width,height,backgroundHover,radius)
             }
 
         } else {
             if (isHover) {
-                RenderUtil.drawRoundedRect(drawContext, x, y, width, height, backgroundHover)
+                RenderUtil.drawRoundedRect(drawContext, x, y, width, height, backgroundHover,radius)
             } else {
-                RenderUtil.drawRoundedRect(drawContext, x, y, width, height, background)
+                RenderUtil.drawRoundedRect(drawContext, x, y, width, height, background,radius)
             }
         }
 

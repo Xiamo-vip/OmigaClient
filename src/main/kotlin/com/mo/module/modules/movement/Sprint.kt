@@ -13,7 +13,6 @@ object Sprint : Module("Sprint","Keep Sprint", GLFW.GLFW_KEY_I, Category.Movemen
     }
 
     override fun onDisable() {
-        FontUtils.loadFont(CustomFonts.Jigsaw)
         super.onDisable()
     }
 

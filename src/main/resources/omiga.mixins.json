@@ -23,6 +23,7 @@
     "MixinScreen",
     "MixinSplash",
     "MixinTick",
+    "MixinTitleScreen",
     "MixinWorldRenderer"
   ]
 }

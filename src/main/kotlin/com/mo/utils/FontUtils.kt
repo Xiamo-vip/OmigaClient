@@ -3,6 +3,7 @@ package com.mo.utils
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.gui.DrawContext
+import net.minecraft.client.util.math.MatrixStack
 import java.awt.Font
 
 
@@ -28,6 +29,24 @@ object FontUtils {
         drawContext.matrices.translate(x/(size.toDouble() / point.toDouble()).toFloat(),y/(size.toDouble() / point.toDouble()).toFloat(),1f)
         fontRender.drawString(drawContext,text,0,0,color,128)
         drawContext.matrices.pop()
+
+    }
+
+    fun drawCustomString(matrixStack: MatrixStack,text : String,x: Float,y: Float,color : Int,size : Int = 10){
+        matrixStack.push()
+        matrixStack.scale((size.toDouble() / point.toDouble()).toFloat(),(size.toDouble() / point.toDouble()).toFloat(),1f)
+        matrixStack.translate(x/(size.toDouble() / point.toDouble()).toFloat(),y/(size.toDouble() / point.toDouble()).toFloat(),1f)
+        fontRender.drawString(matrixStack,text,0,0,color,128)
+        matrixStack.pop()
+
+    }
+
+    fun drawCustomString(matrixStack: MatrixStack,text : String,x: Int,y: Int,color : Int,size : Int = 10){
+        matrixStack.push()
+        matrixStack.scale((size.toDouble() / point.toDouble()).toFloat(),(size.toDouble() / point.toDouble()).toFloat(),1f)
+        matrixStack.translate(x/(size.toDouble() / point.toDouble()).toFloat(),y/(size.toDouble() / point.toDouble()).toFloat(),1f)
+        fontRender.drawString(matrixStack,text,0,0,color,128)
+        matrixStack.pop()
 
     }
 
