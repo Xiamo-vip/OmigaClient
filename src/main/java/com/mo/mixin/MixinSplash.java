@@ -44,7 +44,7 @@ public class MixinSplash {
     public void render(DrawContext context, int mouseX, int mouseY, float delta){
         Overlay custom = new OverlayScreen(c,r,consumer);
         c.setOverlay(custom);
-        return;
+
 
     }
 

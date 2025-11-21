@@ -18,7 +18,7 @@ public class MixinEntityRenderer<T extends Entity> {
 
     @Inject(method = "shouldRender",at = @At("HEAD"),cancellable = true)
     private void shouldRender(T entity, Frustum frustum, double x, double y, double z, CallbackInfoReturnable<Boolean> cir){
-        cir.setReturnValue(true);
+
     }
 
     @Inject(method = "render",at = @At("HEAD"))

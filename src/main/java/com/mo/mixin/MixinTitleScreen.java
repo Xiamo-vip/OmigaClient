@@ -13,7 +13,7 @@ public class MixinTitleScreen{
 
 
 
-    @Inject(method = "init",at=@At("HEAD"), cancellable = true)
+    @Inject(method = "render",at=@At("HEAD"), cancellable = true)
     public void mixinInit(CallbackInfo ci){
         ci.cancel();
         MinecraftClient.getInstance().setScreen(new com.mo.gui.screen.TitleScreen());

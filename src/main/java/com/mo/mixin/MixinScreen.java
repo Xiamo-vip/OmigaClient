@@ -35,8 +35,8 @@ public class MixinScreen {
      * @author XiaMo
      * @reason UI
      */
-    @Overwrite
-    public void renderBackgroundTexture(DrawContext context) {
+    @Inject(method = "renderBackgroundTexture",at=@At("HEAD"), cancellable = true)
+    public void renderBackgroundTexture(DrawContext context, CallbackInfo ci) {
         RenderSystem.setShaderColor(0.25F,0.25F,0.25F,5.0F);
         RenderUtil.INSTANCE.drawImage(context,
                 Objects.requireNonNull(Identifier.of("omiga", "/menubg.png")),
@@ -44,7 +44,9 @@ public class MixinScreen {
                 0f,
                 this.width,
                 this.height);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 5.0F);
+        context.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        ci.cancel();
+
     }
 }
 

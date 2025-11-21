@@ -21,6 +21,7 @@ import org.joml.Quaternionfc
 import java.awt.Color
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.sin
 
 object NameTags : Module("NameTags","nameTags",-1, Category.Render) {
 
@@ -28,17 +29,18 @@ object NameTags : Module("NameTags","nameTags",-1, Category.Render) {
         this.enabled = true
     }
 
-    override fun onRender(drawContext: DrawContext, tickDelta: Float) {
-        //RenderUtil.drawString(drawContext.matrices,"test",150,150,ColorUtils.color(255,255,255,255),10)
+    var tickDelta1 = 0f
 
-        RenderUtil.drawRoundedRect(
-            drawContext,
-            50f,
-            50f,
-            150f,
-            50f,
-            ColorUtils.color(200,53,20,61)
-        )
+    override fun onRender(drawContext: DrawContext, tickDelta: Float) {
+
+
+
+
+
+
+
+
+
 
     }
 

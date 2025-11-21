@@ -70,7 +70,7 @@ object Hud : Module("Hud","HUD",-1, category = Category.Render) {
 
 
 
-        ModuleManager.modules.filter { module -> module.enabled || module.isOnToggle != 0L }.sortedBy { module ->  module.name}.withIndex().forEach {(index, module) ->
+        ModuleManager.modules.filter { module -> module.enabled || module.isOnToggle != 0L }.sortedBy { module -> FontUtils.getStringWidth(module.name,hudModuleFontSize) }.withIndex().forEach { (index, module) ->
 
             val hudModuleFontWidth = FontUtils.getStringWidth(module.name,hudModuleFontSize)+6
             val hudModuleFontHeidtht = FontUtils.getStringHeight(module.name,hudModuleFontSize)

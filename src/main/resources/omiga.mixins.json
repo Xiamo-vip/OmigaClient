@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "ExampleMixin",
+    "MixinEntity",
     "MixinPlayerEntity"
   ],
   "injectors": {
@@ -14,6 +15,8 @@
   },
   "client": [
     "MixinCamera",
+    "MixinClientPlayerEntity",
+    "MixinEntityRenderDispatcher",
     "MixinEntityRenderer",
     "MixinHUD",
     "MixinKeyboard",

@@ -26,7 +26,7 @@ object Speed : Module("Speed","Speed", GLFW.GLFW_KEY_V, Category.Movement) {
                     player.jump()
                 }
 
-                val baseSpeed = 0.2273
+                val baseSpeed = 0.38
                 val yaw = player.yaw
                 var motionX = player.velocity.x
                 var motionZ = player.velocity.z
