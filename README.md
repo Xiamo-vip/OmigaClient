@@ -18,7 +18,7 @@
 > <br>
 ><br>
 ><br>
-> 其他功能积极开发中....  （SettingManager还没写，后面再搞）
+> ！！功能和重心已迁移导Compose的项目中
 > <br>
 ><br>
 ><br>
